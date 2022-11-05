@@ -7,7 +7,7 @@ fn main() {
         let node = Node::new(node_id);
         graph.add_node(node);
     }
-    let edges = vec![
+    for (u, v) in vec![
         ('a', 'b'),
         ('b', 'c'),
         ('c', 'd'),
@@ -34,8 +34,9 @@ fn main() {
         ('x', 'y'),
         ('y', 'z'),
         ('c', 'z'),
-    ];
-    for (u, v) in edges.iter() {
+    ]
+    .iter()
+    {
         let edge = Edge::new(u.clone(), v.clone());
         graph.add_edge(edge);
     }

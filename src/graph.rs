@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::hash::Hash;
 use std::fmt::Display;
+use std::hash::Hash;
 
 use crate::errors;
 
@@ -86,7 +86,10 @@ impl<T: Eq + Hash + Clone + Display> Graph<T> {
                 }
                 None => {
                     break Result::Err(errors::GraphError {
-                        message: format!("start '{}' and stop '{}' nodes are not connected", start, stop),
+                        message: format!(
+                            "start '{}' and stop '{}' nodes are not connected",
+                            start, stop
+                        ),
                     })
                 }
             };
