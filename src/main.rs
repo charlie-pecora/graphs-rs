@@ -1,4 +1,4 @@
-use graphs::{Edge, Graph, Node};
+use graphs::{Edge, Graph, Node, analysis};
 // use serde_json::to_string_pretty;
 
 fn main() {
@@ -41,7 +41,7 @@ fn main() {
         graph.add_edge(edge);
     }
     // println!("{:?}", graph);
-    let shortest_path = graph.find_shortest_path(&'a', &'z');
+    let shortest_path = analysis::shortest_path_bfs(&graph, &'a', &'z');
     match shortest_path {
         Ok(path) => println!("{:?}", path),
         Err(error) => println!("Couldn't find shortest path: {}", error.message),

@@ -9,3 +9,7 @@ pub use edge::Edge;
 
 pub mod graph;
 pub use graph::Graph;
+
+pub mod analysis;
+
+pub mod traits;

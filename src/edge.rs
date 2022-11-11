@@ -1,14 +1,20 @@
 use std::hash::Hash;
+use uuid::Uuid;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Edge<T: Eq + Hash + Clone> {
+    pub id: Uuid,
     pub u: T,
     pub v: T,
 }
 
 impl<T: Eq + Hash + Clone> Edge<T> {
     pub fn new(u: T, v: T) -> Edge<T> {
-        Edge { u: u, v: v }
+        Edge {
+            id: Uuid::new_v4(),
+            u: u,
+            v: v,
+        }
     }
 }
 
