@@ -24,6 +24,8 @@ impl<T: Eq + Hash + Clone + Display> Graph<T> {
         self.nodes.insert(node.id.clone(), node);
     }
 
+    // Adds an edge, with all corresponding nodes
+    // Adds successors and predecessors as needed
     pub fn add_edge(&mut self, edge: Edge<T>) {
         // Add corresponding nodes if they don't exist
         self.nodes

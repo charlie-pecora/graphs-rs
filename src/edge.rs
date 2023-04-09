@@ -12,8 +12,8 @@ impl<T: Eq + Hash + Clone> Edge<T> {
     pub fn new(u: T, v: T) -> Edge<T> {
         Edge {
             id: Uuid::new_v4(),
-            u: u,
-            v: v,
+            u,
+            v,
         }
     }
 }

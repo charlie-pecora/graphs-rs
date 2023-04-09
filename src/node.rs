@@ -11,7 +11,7 @@ pub struct Node<T: Eq + Hash + Clone> {
 impl<T: Eq + Hash + Clone> Node<T> {
     pub fn new(id: T) -> Node<T> {
         Node {
-            id: id,
+            id,
             predecessors: HashSet::<T>::new(),
             successors: HashSet::<T>::new(),
         }
