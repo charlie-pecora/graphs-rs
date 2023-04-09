@@ -1,12 +1,15 @@
-use std::collections::{ HashSet, VecDeque };
+use std::collections::{HashSet, VecDeque};
 use std::fmt::Display;
 use std::hash::Hash;
 
-use crate::graph::Graph;
 use crate::errors;
+use crate::graph::Graph;
 
-
-pub fn shortest_path_bfs<T: Eq +  Hash + Clone + Display>(graph: &Graph<T>, start: &T, stop: &T) -> Result<Vec<T>, errors::GraphError> {
+pub fn shortest_path_bfs<T: Eq + Hash + Clone + Display>(
+    graph: &Graph<T>,
+    start: &T,
+    stop: &T,
+) -> Result<Vec<T>, errors::GraphError> {
     let mut visited_nodes = HashSet::<T>::new();
     let mut queue = VecDeque::new();
     let mut start_path = Vec::new();
@@ -16,15 +19,16 @@ pub fn shortest_path_bfs<T: Eq +  Hash + Clone + Display>(graph: &Graph<T>, star
         let (successors, current_path) = match queue.pop_front() {
             Some((current_node, current_path)) => {
                 visited_nodes.insert(current_node.clone());
-                (graph.get_successors(&current_node), current_path)
+                (graph.get_successors(&current_node)?, current_path)
             }
             None => {
-                break Result::Err(errors::GraphError {
-                    message: format!(
+                break Result::Err(errors::GraphError::new(
+                    format!(
                         "start '{}' and stop '{}' nodes are not connected",
                         start, stop
-                    ),
-                })
+                    )
+                    .as_str(),
+                ))
             }
         };
         let mut matched_path: Option<Vec<T>> = None;
@@ -44,7 +48,6 @@ pub fn shortest_path_bfs<T: Eq +  Hash + Clone + Display>(graph: &Graph<T>, star
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -56,9 +59,9 @@ mod tests {
         let shortest_path = shortest_path_bfs(&graph, &'b', &'a');
         assert_eq!(
             shortest_path,
-            Err(errors::GraphError {
-                message: String::from("start 'b' and stop 'a' nodes are not connected")
-            })
+            Err(errors::GraphError::new(
+                "start 'b' and stop 'a' nodes are not connected"
+            ))
         );
     }
 
