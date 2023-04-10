@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::hash::Hash;
 
@@ -18,6 +19,23 @@ impl<T: Eq + Hash + Clone> Node<T> {
     }
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct RocksNode {
+    pub id: String,
+    pub predecessors: HashSet<String>,
+    pub successors: HashSet<String>,
+}
+
+impl RocksNode {
+    pub fn new(id: String) -> RocksNode {
+        RocksNode {
+            id,
+            predecessors: HashSet::<String>::new(),
+            successors: HashSet::<String>::new(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -25,6 +43,12 @@ mod tests {
     #[test]
     fn create_node() {
         let new_node = Node::new("abc");
+        assert_eq!(new_node.id, "abc");
+    }
+
+    #[test]
+    fn create_rocks_node() {
+        let new_node = RocksNode::new(String::from("abc"));
         assert_eq!(new_node.id, "abc");
     }
 }
