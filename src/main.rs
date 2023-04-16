@@ -1,5 +1,4 @@
 use graphs::{analysis, Edge, Graph};
-// use serde_json::to_string_pretty;
 
 fn main() {
     let mut graph = Graph::<i32>::new();

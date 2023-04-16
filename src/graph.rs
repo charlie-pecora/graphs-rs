@@ -1,32 +1,30 @@
 use std::collections::{HashMap, HashSet};
-use std::fmt::Display;
-use std::hash::Hash;
 
 use crate::edge::Edge;
 use crate::errors::GraphError;
 use crate::node::Node;
 
 #[derive(Debug, PartialEq)]
-pub struct Graph<T: Eq + Hash + Clone + Display> {
-    nodes: HashMap<T, Node<T>>,
-    edges: HashMap<(T, T), Vec<Edge<T>>>,
+pub struct Graph {
+    nodes: HashMap<String, Node>,
+    edges: HashMap<(String, String), Vec<Edge>>,
 }
 
-impl<T: Eq + Hash + Clone + Display> Graph<T> {
-    pub fn new() -> Graph<T> {
+impl Graph {
+    pub fn new() -> Graph {
         Graph {
             nodes: HashMap::new(),
             edges: HashMap::new(),
         }
     }
 
-    pub fn add_node(&mut self, node: Node<T>) {
+    pub fn add_node(&mut self, node: Node) {
         self.nodes.insert(node.id.clone(), node);
     }
 
     // Adds an edge, with all corresponding nodes
     // Adds successors and predecessors as needed
-    pub fn add_edge(&mut self, edge: Edge<T>) {
+    pub fn add_edge(&mut self, edge: Edge) {
         // Add corresponding nodes if they don't exist
         self.nodes
             .entry(edge.u.clone())
@@ -49,18 +47,18 @@ impl<T: Eq + Hash + Clone + Display> Graph<T> {
         let edges = self
             .edges
             .entry((edge.u.clone(), edge.v.clone()))
-            .or_insert(Vec::<Edge<T>>::new());
+            .or_insert(Vec::<Edge<String>>::new());
         edges.push(edge);
     }
 
-    pub fn get_successors(&self, node_id: &T) -> Result<HashSet<T>, GraphError> {
+    pub fn get_successors(&self, node_id: &String) -> Result<HashSet<String>, GraphError> {
         match self.nodes.get(&node_id) {
             Some(n) => Ok(n.successors.clone()),
             None => Err(GraphError::new("Node not found")),
         }
     }
 
-    pub fn get_predecessors(&self, node_id: &T) -> Result<HashSet<T>, GraphError> {
+    pub fn get_predecessors(&self, node_id: &String) -> Result<HashSet<String>, GraphError> {
         match self.nodes.get(&node_id) {
             Some(n) => Ok(n.predecessors.clone()),
             None => Err(GraphError::new("Node not_found")),
@@ -74,14 +72,14 @@ mod tests {
 
     #[test]
     fn create_empty_graph() {
-        let graph = Graph::<i32>::new();
+        let graph = Graph::new();
         assert_eq!(graph.nodes.is_empty(), true)
     }
 
     #[test]
     fn add_node() {
         let mut graph = Graph::<&str>::new();
-        let node = Node::new("a");
+        let node = Node::new(String::from("a"));
         graph.add_node(node);
         assert_eq!(graph.nodes["a"].id, "a");
     }
@@ -118,19 +116,19 @@ mod tests {
     fn get_single_successor() {
         let mut graph = Graph::<char>::new();
         graph.add_edge(Edge::new('a', 'b'));
-        let successors = graph.get_successors(&'a').unwrap();
+        let successors = graph.get_successors(&'a'.to_string()).unwrap();
         assert_eq!(successors.len(), 1);
-        assert_eq!(successors.contains(&'b'), true);
+        assert_eq!(successors.contains(&'b'.to_string()), true);
     }
 
     #[test]
     fn get_predecessors() {
-        let mut graph = Graph::<char>::new();
-        graph.add_edge(Edge::new('a', 'b'));
-        graph.add_edge(Edge::new('c', 'b'));
-        let predecessors = graph.get_predecessors(&'b').unwrap();
+        let mut graph = Graph::new();
+        graph.add_edge(Edge::new('a'.to_string(), 'b'.to_string()));
+        graph.add_edge(Edge::new('c'.to_string(), 'b'.to_string()));
+        let predecessors = graph.get_predecessors(&'b'.to_string()).unwrap();
         assert_eq!(predecessors.len(), 2);
-        assert_eq!(predecessors.contains(&'a'), true);
-        assert_eq!(predecessors.contains(&'c'), true);
+        assert_eq!(predecessors.contains(&'a'.to_string()), true);
+        assert_eq!(predecessors.contains(&'c'.to_string()), true);
     }
 }
