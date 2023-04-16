@@ -2,6 +2,7 @@ use rocksdb;
 use serde_json;
 
 use crate::node::RocksNode;
+use crate::edge::RocksEdge;
 use crate::errors::GraphError;
 
 pub struct RocksDBGraph {
@@ -55,6 +56,32 @@ impl RocksDBGraph {
             }
             Ok(None) => Err(GraphError::new("No such node")),
             Err(_) => Err(GraphError::new("Error getting node")),
+        }
+    }
+
+    pub fn add_edge(&mut self, edge: RocksEdge) -> Result<(), GraphError> {
+        match self.db.put(
+            format!("{}{}_{}", "edge_", edge.u, edge.v),
+            serde_json::to_string(&edge).unwrap(),
+        ) {
+            Ok(_) => {
+                self.update_node(
+                    &edge.u,
+                    &|mut node: RocksNode| -> RocksNode {
+                        node.successors.insert(edge.v.clone());
+                        node
+                    }
+                )?;
+                self.update_node(
+                    &edge.v,
+                    &|mut node: RocksNode| -> RocksNode {
+                        node.successors.insert(edge.u.clone());
+                        node
+                    }
+                )?;
+                Ok(())
+            },
+            Err(_) => Err(GraphError::new("Unable to add edge")),
         }
     }
 }
