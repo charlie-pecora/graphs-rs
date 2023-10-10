@@ -1,9 +1,9 @@
 use rocksdb;
 use serde_json;
 
-use crate::node::RocksNode;
 use crate::edge::RocksEdge;
 use crate::errors::GraphError;
+use crate::node::RocksNode;
 
 pub struct RocksDBGraph {
     db: rocksdb::TransactionDB,
@@ -35,7 +35,11 @@ impl RocksDBGraph {
         }
     }
 
-    pub fn update_node(&mut self, node_id: &str, update: &dyn Fn(RocksNode) -> RocksNode) -> Result<RocksNode, GraphError> {
+    pub fn update_node(
+        &mut self,
+        node_id: &str,
+        update: &dyn Fn(RocksNode) -> RocksNode,
+    ) -> Result<RocksNode, GraphError> {
         let txn = self.db.transaction();
         match txn.get(&node_id) {
             Ok(Some(s)) => {
@@ -43,14 +47,11 @@ impl RocksDBGraph {
                 match node {
                     Ok(n) => {
                         let new_node = update(n);
-                        match txn.put(
-                            &node_id,
-                            serde_json::to_string(&new_node).unwrap(),
-                        ) {
+                        match txn.put(&node_id, serde_json::to_string(&new_node).unwrap()) {
                             Ok(_) => Ok(new_node),
                             Err(_) => Err(GraphError::new("C")),
                         }
-                    },
+                    }
                     Err(_) => Err(GraphError::new("Issue deserializing key")),
                 }
             }
@@ -65,22 +66,16 @@ impl RocksDBGraph {
             serde_json::to_string(&edge).unwrap(),
         ) {
             Ok(_) => {
-                self.update_node(
-                    &edge.u,
-                    &|mut node: RocksNode| -> RocksNode {
-                        node.successors.insert(edge.v.clone());
-                        node
-                    }
-                )?;
-                self.update_node(
-                    &edge.v,
-                    &|mut node: RocksNode| -> RocksNode {
-                        node.successors.insert(edge.u.clone());
-                        node
-                    }
-                )?;
+                self.update_node(&edge.u, &|mut node: RocksNode| -> RocksNode {
+                    node.successors.insert(edge.v.clone());
+                    node
+                })?;
+                self.update_node(&edge.v, &|mut node: RocksNode| -> RocksNode {
+                    node.successors.insert(edge.u.clone());
+                    node
+                })?;
                 Ok(())
-            },
+            }
             Err(_) => Err(GraphError::new("Unable to add edge")),
         }
     }
@@ -119,7 +114,9 @@ mod tests {
         let path = format!("test.{}.db", Uuid::new_v4());
         let mut _graph = RocksDBGraph::new(&path);
         _graph.add_node(RocksNode::new(test_node_name.clone()));
-        _graph.update_node(test_node_name.as_str(), &update_fn).unwrap();
+        _graph
+            .update_node(test_node_name.as_str(), &update_fn)
+            .unwrap();
         let node = _graph.get_node(test_node_name.as_str()).unwrap();
         assert_eq!(node.id, test_node_name.as_str());
         let _ = rocksdb::DB::destroy(&rocksdb::Options::default(), path);

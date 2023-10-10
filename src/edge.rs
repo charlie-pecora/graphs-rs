@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::hash::Hash;
 use uuid::Uuid;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Edge<T: Eq + Hash + Clone> {
@@ -35,7 +35,6 @@ impl RocksEdge {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

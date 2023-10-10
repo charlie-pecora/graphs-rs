@@ -14,5 +14,3 @@ pub mod graph_rocksdb;
 pub use graph_rocksdb::RocksDBGraph;
 
 pub mod analysis;
-
-pub mod traits;
